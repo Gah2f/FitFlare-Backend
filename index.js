@@ -112,7 +112,7 @@ app.get('/', (req, res) => {
   res.send('Hello Folks, I am a server');
 });
 
-app.get('/classes', verifyJWT,  async (req, res) => {
+app.get('/classes',  async (req, res) => {
   const query = {status : 'approved'};
   const result = await classesConnection.find(query).toArray();
   res.send(result);
@@ -131,7 +131,7 @@ app.get('/classesmanagement', async (req, res)=> {
   res.send(result);
 });
 
-app.patch ('/classesupdated/:id', verifyJWT, verifyAdmin, async (req,res)=> {
+app.patch ('/classesupdated/:id', async (req,res)=> {
   const id = req.params.id;
   const status = req.body.status;
   const reason = req.body.reason;
