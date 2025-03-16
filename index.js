@@ -126,6 +126,21 @@ app.get('/classes/:email',   verifyJWT, verifyInstructor, async (req, res) => {
 
 });
 
+app.get('/classes/:id', async (req,res)=>
+  {
+    try {
+      const id = req.params.id
+      // console.log(id);
+    const query = {_id: new ObjectId(id)};
+    const result = await userConnection.find(query ).toArray();
+    res.send(result);
+    // console.log(result);
+    } catch (error) {
+      res.send(error)
+    }
+    
+  })
+
 app.get('/classesmanagement', async (req, res)=> {
   const result = await classesConnection.find().toArray();
   res.send(result);
@@ -235,7 +250,7 @@ app.get('/payment/:email', async (req,res)=>{
   const userEmail = req.params.email;
   const query = { email : userEmail};
   const result = await paymentConnection.findOne(query).sort({date: -1});
-  res.send(result);
+  res.send(result)
 })
 
 app.get('/paymentlength/:email', async (req,res)=>{
@@ -293,6 +308,7 @@ app.get('/popularclasses', async (req,res)=> {
   res.send(result);
 });
 
+
 app.get('/popularinstructors', async (req,res)=>{
   const pipeline = [
    {
@@ -309,6 +325,11 @@ app.get('/popularinstructors', async (req,res)=>{
       as: "instructor"
     },
    }, 
+   {
+    $match: {
+      "Instructor.role": "Instructor",
+    }
+   },
    {
     $project: {
       _id: 0,
@@ -331,6 +352,7 @@ app.get('/popularinstructors', async (req,res)=>{
   res.send(result);
 })
 
+
 // For admin status
 
 app.get('/adminstatus', verifyJWT, verifyAdmin, async (req,res)=>{
@@ -344,8 +366,23 @@ app.get('/adminstatus', verifyJWT, verifyAdmin, async (req,res)=>{
 })
 
 app.get('/instructors', async (req,res)=>{
-  const result = await userConnection.find({role: 'instructor'}).toArray();
+  const result = await userConnection.find({ role: { $regex: '^instructor$', $options: 'i' }}).toArray()
   res.send(result);
+})
+
+app.get('/instructors/:id', async (req,res)=>
+{
+  try {
+    const id = req.params.id
+    // console.log(id);
+  const query = {_id: new ObjectId(id),  role: { $regex: '^instructor$', $options: 'i' }};
+  const result = await userConnection.find(query ).toArray();
+  res.send(result);
+  // console.log(result);
+  } catch (error) {
+    res.send(error)
+  }
+  
 })
 
 app.get('/enrolledclasses/:email', verifyJWT, async (req, res)=>{
@@ -398,7 +435,7 @@ app.post('/asinstructor', async (req,res)=>{
 app.get('/appliedinstructors/:email', async (req,res)=>{
   const email = req.params.email;
   const result = await appliedConnection.find({email});
-  res.send(result);
+  res.send(result)
 })
 
 //  API Route for User Connection [line]
